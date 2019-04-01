@@ -1,6 +1,6 @@
 %%Bart Duisterhof -- 4442695
 
-%% Clear workspace to be sure
+%% Clear workspace 
 clear
 
 %% Retrieve user input preference
@@ -17,18 +17,18 @@ end
 %% INPUT TURBULENCE- AND AIRCRAFT PARAMETERS
 % AIRCRAFT FLIGHT CONDITION 'LANDING'.
 V     = 51.4;
-m     = 4557;
+m     = 4556;
 twmuc = 2*76;
 KY2   = 0.980;
 c     = 2.022;
 S     = 24.2;
-lh    = 5.5; %horizontal tail length
+lh    = 5.5;   %horizontal tail length
 g = 9.80665;
-Kt = -0.12868;
+Kt = -0.117;
 
 % TURBULENCE PARAMETERS
 sigma = 1;
-Lg    = 150;
+Lg    = 1500;
 
 sigmaug_V = sigma/V;
 sigmaag   = sigma/V;
@@ -42,58 +42,6 @@ CXd = 0.0000;     CZd  =-0.6238;     Cmd  = -1.5530;
 CXfa= 0.0000;     CZfa =-1.4050;     Cmfa = -3.615;
                   CZfug= 0.0000;     Cmfug= -Cm0*lh/c;
                   CZfag= CZfa-CZq;   Cmfag=  Cmfa-Cmq;
-%%% JOSE PARAMETERS
-%sigmaug_V = sigma/V;
-%sigmaag   = sigma/V;
-%
-% W = 32000;         % N
-% S = 25.95;         % m^2
-% c = 1.98;          % m
-% x_cg = 0.236*c;    % m
-% V = 46;            % m/s
-% lh = 4.85;        % m
-% twmuc = 106.04;    % -
-% m =W/g;
-% twmucKYtw = 66.16; % -
-% KY2   = twmucKYtw/twmuc;
-% 
-% sigmaug_V = sigma/V;
-% sigmaag   = sigma/V;
-% 
-% g = 9.80665;       % m/s^2
-% 
-% CX0 = 0;
-% CXu = -0.27;
-% CXa = 0.45;
-% CXfag = 0;
-% CXq = 0;
-% CXd = 0;
-% CXug = CXu;
-% CXfug = 0;
-% CXag = CXa;
-% CXfag = 0;
-% 
-% CZ0 = -0.98;
-% CZu = -1.95;
-% CZa = -5.23;
-% CZfa = -1.43;
-% CZq = -3.51;
-% CZd = -0.33;
-% CZug = CZu;
-% CZfug = 0; %%%%
-% CZag = CZa;    
-% CZfag = CZfa - CZq;
-% 
-% Cm0 = 0;
-% Cmu = -0.04;
-% Cma = -0.44;
-% Cmfa = -3.55;
-% Cmq = -5.2;
-% Cmd = -0.99;
-% Cmug = Cmu;
-% Cmfug = -Cm0 * lh/c; %%%%
-% Cmag = Cma;    
-% Cmfag = Cmfa - Cmq
 
 % CALCULATION OF AIRCRAFT SYMMETRIC STABILITY DERIVATIVES
 xu   = (V/c)*(CXu/twmuc);
@@ -135,8 +83,7 @@ A=[xu xa xt 0    xug                  xag       0 ;
    0  0  0  0    0                    0         1 ;
    0  0  0  0    0                   -(V/Lg)^2 -2*V/Lg ];
 
-B=...
- [xd 0                                 0;
+B= [xd 0                                 0;
   zd zfug*(c/V)*sigmaug_V*sqrt(2*V/Lg) zfag*(c/V)*sigmaag*sqrt(3*V/Lg);
   0  0                                 0;
   md mfug*(c/V)*sigmaug_V*sqrt(2*V/Lg) mfag*(c/V)*sigmaag*sqrt(3*V/Lg);
@@ -151,6 +98,9 @@ C = [eye(4) zeros(4,3);
 n_z_row]; 
 D = [zeros(4,3);
     (V/g)*(B(3,:)-B(2,:))];
+
+
+
 if n==0
     %TF's for gain determination
     sys_no_pd = ss(A,B,C,D);
@@ -176,6 +126,10 @@ if k==1
     A = A-B(:,1)*K;         % new A matrix = (A - BK) because of feedback
 end
 
+%computing system for pzmap with relevant eigenmodes
+C_red = eye(7);
+D_red = zeros(7,3);
+sys = ss(A,B,C_red,D_red);
 
 switch n
     case 1
@@ -204,28 +158,28 @@ switch n
         % PLOTTING RESULTS
         subplot(6,1,1);
         plot(t,y(:,1))
-        xlabel('time [s]'); ylabel('u/V [-]'); title('airspeed deviation');
+        xlabel('time [s]'); ylabel('$\frac{u}{V}$ [-]','interpreter','latex'); title('airspeed deviation');
 
         subplot(6,1,2);
         plot(t,y(:,2)*180/pi)
-        xlabel('time [s]'); ylabel('alpha [deg]'); title('angle of attack');
+        xlabel('time [s]'); ylabel('$\alpha$ [deg]','interpreter','latex'); title('angle of attack');
 
         subplot(6,1,3);
         plot(t,y(:,3)*180/pi)
-        xlabel('time [s]'); ylabel('theta [deg]'); title('pitch angle');
+        xlabel('time [s]'); ylabel('$\theta$ [deg]','interpreter','latex'); title('pitch angle');
 
         subplot(6,1,4);
         plot(t,y(:,4)*180/pi)
-        xlabel('time [s]'); ylabel('qc/V [deg]'); title('pitch rate');
+        xlabel('time [s]'); ylabel('$\frac{qc}{V}$ [deg]','interpreter','latex'); title('pitch rate');
 
         subplot(6,1,5);
         plot(t,y(:,5))
-        xlabel('time [s]'); ylabel('load_factor'); title('Load factor from state space');
+        xlabel('time [s]'); ylabel('$n_z$ [-]','interpreter','latex'); title('Load factor from state space');
 
         subplot(6,1,6);
         N = length(t);
         plot( t(:,1:N-1),a_z_ref(1:N-1))
-        xlabel('time [s]'); ylabel('load_factor'); title('Load factor from time signals');
+        xlabel('time [s]'); ylabel('$n_z$ [-]','interpreter','latex'); title('Load factor from time signals');
     case 2
         %% Spectral analysis
         %% Time-domain signals to be used
@@ -258,30 +212,30 @@ switch n
         W  = Wc/dt;    % discrete time covariance, remember?
       
         % DEFINE FREQUENCY AXIS
-        omega = logspace(-2,2,Nf);
+        f_1 = logspace(-2,2,Nf);
 
         % COMPUTE FREQUENCY RESPONSE
-        mag = bode(A,B,C,D,3,omega);
+        mag = bode(A,B,C,D,3,f_1);
 
         % COMPUTE POWER SPECTRA
-        Suu = mag(:,1).^2;
-        Saa = mag(:,2).^2;
-        Stt = mag(:,3).^2;
-        Sqq = mag(:,4).^2;
-        Snn = mag(:,5).^2;
+        Suu_1 = mag(:,1).^2;
+        Saa_1 = mag(:,2).^2;
+        Stt_1 = mag(:,3).^2;
+        Sqq_1 = mag(:,4).^2;
+        Snn_1 = mag(:,5).^2;
 
         % PLOT POWER SPECTRA
         figure(1)
         subplot(2,3,1); 
-        loglog(omega,Suu); xlabel('omega [rad/sec]'); ylabel('Suu [rad^2]');
+        loglog(f_1,Suu_1); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,2); 
-        loglog(omega,Saa); xlabel('omega [rad/sec]'); ylabel('Saa [rad^2]');
+        loglog(f_1,Saa_1); xlabel('$\omega$ [rad/sec]','interpreter','latex');  ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
-        loglog(omega,Stt); xlabel('omega [rad/sec]'); ylabel('Stt [rad^2]');
+        loglog(f_1,Stt_1); xlabel('$\omega$ [rad/sec]','interpreter','latex');  ylabel('Stt [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,4); 
-        loglog(omega,Sqq); xlabel('omega [rad/sec]'); ylabel('Sqq [rad^2]');
+        loglog(f_1,Sqq_1);xlabel('$\omega$ [rad/sec]','interpreter','latex');  ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(omega,Snn); xlabel('omega [rad/sec]'); ylabel('Snn [rad^2]');
+        loglog(f_1,Snn_1); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
 
         %% experimental method, fft.m
 
@@ -295,27 +249,27 @@ switch n
         Snn = mag(1:N/2+1,5);
 
         %convert to PSD
-        Suu = (1/T)*abs(Suu).^2;
-        Saa = (1/T)*abs(Saa).^2;
-        Stt = (1/T)*abs(Stt).^2;
-        Sqq = (1/T)*abs(Sqq).^2;
-        Snn = (1/T)*abs(Snn).^2;
+        Suu_2 = (1/T)*abs(Suu).^2;
+        Saa_2 = (1/T)*abs(Saa).^2;
+        Stt_2 = (1/T)*abs(Stt).^2;
+        Sqq_2 = (1/T)*abs(Sqq).^2;
+        Snn_2 = (1/T)*abs(Snn).^2;
         
-        f = 2*pi*Fs*(0:(N/2))/N;          %frequency array in rad/s
-        N = length(f);
+        f_2 = 2*pi*Fs*(0:(N/2))/N;          %frequency array in rad/s
+        N = length(f_2);
 
         % PLOT POWER SPECTRA
         figure(2)
         subplot(2,3,1); 
-        loglog(f,Suu); xlabel('omega [rad/sec]'); ylabel('Suu [rad^2]');
+        loglog(f_2,Suu_2); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,2); 
-        loglog(f,Saa); xlabel('omega [rad/sec]'); ylabel('Saa [rad^2]');
+        loglog(f_2,Saa_2);xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
-        loglog(f,Stt); xlabel('omega [rad/sec]'); ylabel('Stt [rad^2]');
+        loglog(f_2,Stt_2);xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Stt [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,4); 
-        loglog(f,Sqq); xlabel('omega [rad/sec]'); ylabel('Sqq [rad^2]');
+        loglog(f_2,Sqq_2); xlabel('$\omega$ [rad/sec]','interpreter','latex');ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(f,Snn); xlabel('omega [rad/sec]'); ylabel('Snn [rad^2]');
+        loglog(f_2,Snn_2); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         
  
         %% Experimental PSD, pwelch.m
@@ -324,25 +278,40 @@ switch n
         [pxx,f] = pwelch(X,[],[],f,Fs);
         
         %converting everything to rad
-        f = f*2*pi;
-        Suu = pxx(:,1);
-        Saa = pxx(:,2);
-        Stt = pxx(:,3);
-        Sqq = pxx(:,4);
-        Snn = pxx(:,5);
+        f_3 = f*2*pi;
+        Suu_3 = pxx(:,1);
+        Saa_3 = pxx(:,2);
+        Stt_3 = pxx(:,3);
+        Sqq_3 = pxx(:,4);
+        Snn_3 = pxx(:,5);
                 
         % PLOT POWER SPECTRA
         figure(3)
         subplot(2,3,1); 
-        loglog(f,Suu); xlabel('omega [rad/sec]'); ylabel('Suu [rad^2]');
+        loglog(f_3,Suu_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,2); 
-        loglog(f,Saa); xlabel('omega [rad/sec]'); ylabel('Saa [rad^2]');
+        loglog(f_3,Saa_3);xlabel('$\omega$ [rad/sec]','interpreter','latex');ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
-        loglog(f,Stt); xlabel('omega [rad/sec]'); ylabel('Stt [rad^2]');
+        loglog(f_3,Stt_3); xlabel('$\omega$ [rad/sec]','interpreter','latex');ylabel('Stt [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,4); 
-        loglog(f,Sqq); xlabel('omega [rad/sec]'); ylabel('Sqq [rad^2]');
+        loglog(f_3,Sqq_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(f,Snn); xlabel('omega [rad/sec]'); ylabel('Snn [rad^2]');
+        loglog(f_3,Snn_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        
+        
+        figure(4)
+
+        subplot(2,3,1); 
+        loglog(f_1,Suu_1,f_2,Suu_2,f_3,Suu_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');legend('analytical','fft.m','pwelch.m');
+        subplot(2,3,2); 
+        loglog(f_1,Saa_1,f_2,Saa_2,f_3,Saa_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        subplot(2,3,3); 
+        loglog(f_1,Stt_1,f_2,Stt_2,f_3,Stt_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Stt [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        subplot(2,3,4); 
+        loglog(f_1,Sqq_1,f_2,Sqq_2,f_3,Sqq_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        subplot(2,3,5); 
+        loglog(f_1,Snn_1,f_2,Snn_2,f_3,Snn_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+
     case 3
         %% Variances
         %compute time simulation
