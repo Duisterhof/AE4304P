@@ -99,8 +99,6 @@ n_z_row];
 D = [zeros(4,3);
     (V/g)*(B(3,:)-B(2,:))];
 
-
-
 if n==0
     %TF's for gain determination
     sys_no_pd = ss(A,B,C,D);
@@ -227,7 +225,7 @@ switch n
         % PLOT POWER SPECTRA
         figure(1)
         subplot(2,3,1); 
-        loglog(f_1,Suu_1); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_1,Suu_1); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{1}{rad/s}$]','interpreter','latex');
         subplot(2,3,2); 
         loglog(f_1,Saa_1); xlabel('$\omega$ [rad/sec]','interpreter','latex');  ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
@@ -235,7 +233,7 @@ switch n
         subplot(2,3,4); 
         loglog(f_1,Sqq_1);xlabel('$\omega$ [rad/sec]','interpreter','latex');  ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(f_1,Snn_1); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_1,Snn_1); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{1}{rad/s}$]','interpreter','latex');
 
         %% experimental method, fft.m
 
@@ -249,6 +247,8 @@ switch n
         Snn = mag(1:N/2+1,5);
 
         %convert to PSD
+        %this is different to the equation in the report, due to matlab
+        %defenitions
         Suu_2 = (1/T)*abs(Suu).^2;
         Saa_2 = (1/T)*abs(Saa).^2;
         Stt_2 = (1/T)*abs(Stt).^2;
@@ -261,7 +261,7 @@ switch n
         % PLOT POWER SPECTRA
         figure(2)
         subplot(2,3,1); 
-        loglog(f_2,Suu_2); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_2,Suu_2); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{1}{rad/s}$]','interpreter','latex');
         subplot(2,3,2); 
         loglog(f_2,Saa_2);xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
@@ -269,7 +269,7 @@ switch n
         subplot(2,3,4); 
         loglog(f_2,Sqq_2); xlabel('$\omega$ [rad/sec]','interpreter','latex');ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(f_2,Snn_2); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_2,Snn_2); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{1}{rad/s}$]','interpreter','latex');
         
  
         %% Experimental PSD, pwelch.m
@@ -288,7 +288,7 @@ switch n
         % PLOT POWER SPECTRA
         figure(3)
         subplot(2,3,1); 
-        loglog(f_3,Suu_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_3,Suu_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{1}{rad/s}$]','interpreter','latex');
         subplot(2,3,2); 
         loglog(f_3,Saa_3);xlabel('$\omega$ [rad/sec]','interpreter','latex');ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
@@ -296,13 +296,13 @@ switch n
         subplot(2,3,4); 
         loglog(f_3,Sqq_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(f_3,Snn_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_3,Snn_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{1}{rad/s}$]','interpreter','latex');
         
         
         figure(4)
 
         subplot(2,3,1); 
-        loglog(f_1,Suu_1,f_2,Suu_2,f_3,Suu_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{rad^2}{rad/s}$]','interpreter','latex');legend('analytical','fft.m','pwelch.m');
+        loglog(f_1,Suu_1,f_2,Suu_2,f_3,Suu_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Suu [$\frac{1}{rad/s}$]','interpreter','latex');legend('analytical','fft.m','pwelch.m');
         subplot(2,3,2); 
         loglog(f_1,Saa_1,f_2,Saa_2,f_3,Saa_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Saa [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,3); 
@@ -310,7 +310,7 @@ switch n
         subplot(2,3,4); 
         loglog(f_1,Sqq_1,f_2,Sqq_2,f_3,Sqq_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Sqq [$\frac{rad^2}{rad/s}$]','interpreter','latex');
         subplot(2,3,5); 
-        loglog(f_1,Snn_1,f_2,Snn_2,f_3,Snn_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{rad^2}{rad/s}$]','interpreter','latex');
+        loglog(f_1,Snn_1,f_2,Snn_2,f_3,Snn_3); xlabel('$\omega$ [rad/sec]','interpreter','latex'); ylabel('Snn [$\frac{1}{rad/s}$]','interpreter','latex');
 
     case 3
         %% Variances
@@ -387,13 +387,14 @@ switch n
         X = [y(:,1),y(:,2),y(:,3),y(:,4),y(:,5)];
         mag = dt*fft(X);
         
+        %cut axis in half, as it's a fourier transform
         Suu = mag(1:N/2+1,1);
         Saa = mag(1:N/2+1,2);
         Stt = mag(1:N/2+1,3);
         Sqq = mag(1:N/2+1,4);
         Snn = mag(1:N/2+1,5);
 
-        %convert to PSD
+        %square and scale
         Suu = (1/T)*abs(Suu).^2;
         Saa = (1/T)*abs(Saa).^2;
         Stt = (1/T)*abs(Stt).^2;
@@ -403,6 +404,7 @@ switch n
         f = 2*pi*Fs*(0:(N/2))/N;          %frequency array in rad/s
         N = length(f);
         
+        %integrate
         do = diff(f)';
         var_arr = zeros(1,5);
         var_arr(1) = sum(do.*Suu(1:N-1));
@@ -415,6 +417,7 @@ switch n
         disp(10^6*var_arr/pi)     
         
         %% using pwelch.m
+        %call function
         f = (Fs/N)*(0:(N/2)); %frequency input array in Hz
         [pxx,f] = pwelch(X,[],[],f,Fs);
         Suu = pxx(:,1);
@@ -423,6 +426,7 @@ switch n
         Sqq = pxx(:,4);
         Snn = pxx(:,5);
         
+        %integration
         f = (Fs/N)*(0:(N/2))*2*pi; %frequency array in rad/s
         do = diff(f)';
         N = length(f);
@@ -441,7 +445,6 @@ switch n
         disp('Using var.m routine:')
         disp('1.0e-06 *')
         disp(10^6*var_arr)
-        
         
     otherwise 
         disp('Invalid input');
